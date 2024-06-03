@@ -1,35 +1,112 @@
 import UIKit
+import Combine
+import SwiftUI
 
-class HomeViewController: UIViewController {
+// MARK: - Coordinator Pattern
+protocol Coordinator {
+    var navigationController: UINavigationController { get set }
+    func start()
+}
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupUI()
+class AppCoordinator: Coordinator {
+    var navigationController: UINavigationController
+
+    init(navigationController: UINavigationController) {
+        self.navigationController = navigationController
     }
 
-    private func setupUI() {
-        // Setup UI for home screen
+    func start() {
+        let homeViewModel = HomeViewModel(coordinator: self)
+        let homeVC = UIHostingController(rootView: HomeView(viewModel: homeViewModel))
+        navigationController.pushViewController(homeVC, animated: true)
     }
 
-    @IBAction func garbageButtonTapped(_ sender: UIButton) {
-        navigateToViewController(ofType: GarbageViewController.self)
+    func showGarbageScreen() {
+        let garbageVC = GarbageViewController(viewModel: GarbageViewModel())
+        navigationController.pushViewController(garbageVC, animated: true)
     }
 
-    @IBAction func recyclingButtonTapped(_ sender: UIButton) {
-        navigateToViewController(ofType: RecyclingViewController.self)
+    func showRecyclingScreen() {
+        let recyclingVC = RecyclingViewController(viewModel: RecyclingViewModel())
+        navigationController.pushViewController(recyclingVC, animated: true)
     }
 
-    @IBAction func integrationsButtonTapped(_ sender: UIButton) {
-        navigateToViewController(ofType: IntegrationsViewController.self)
-    }
-
-    private func navigateToViewController<T: UIViewController>(ofType type: T.Type) {
-        let viewController = T()
-        navigationController?.pushViewController(viewController, animated: true)
+    func showIntegrationsScreen() {
+        let integrationsVC = IntegrationsViewController(viewModel: IntegrationsViewModel())
+        navigationController.pushViewController(integrationsVC, animated: true)
     }
 }
 
+// MARK: - View Models
+class HomeViewModel: ObservableObject {
+    private let coordinator: AppCoordinator
+
+    init(coordinator: AppCoordinator) {
+        self.coordinator = coordinator
+    }
+
+    func garbageButtonTapped() {
+        coordinator.showGarbageScreen()
+    }
+
+    func recyclingButtonTapped() {
+        coordinator.showRecyclingScreen()
+    }
+
+    func integrationsButtonTapped() {
+        coordinator.showIntegrationsScreen()
+    }
+}
+
+class GarbageViewModel: ObservableObject {
+    // Add properties and methods for Garbage screen
+}
+
+class RecyclingViewModel: ObservableObject {
+    // Add properties and methods for Recycling screen
+}
+
+class IntegrationsViewModel: ObservableObject {
+    let cities = [
+        "Toronto", "Montreal", "Vancouver", "Calgary", "Edmonton",
+        "Ottawa", "Winnipeg", "Quebec City", "Hamilton", "London",
+        "Victoria", "Halifax", "St. John's", "Kitchener", "Mississauga",
+        "Saskatoon", "Regina", "Kelowna", "Moncton", "Fredericton"
+    ]
+    @Published var selectedCity: String?
+}
+
+// MARK: - SwiftUI Views
+struct HomeView: View {
+    @ObservedObject var viewModel: HomeViewModel
+
+    var body: some View {
+        VStack {
+            Button("Garbage") {
+                viewModel.garbageButtonTapped()
+            }
+            Button("Recycling") {
+                viewModel.recyclingButtonTapped()
+            }
+            Button("Integrations") {
+                viewModel.integrationsButtonTapped()
+            }
+        }
+    }
+}
+
+// MARK: - UIKit View Controllers
 class GarbageViewController: UIViewController {
+    private let viewModel: GarbageViewModel
+
+    init(viewModel: GarbageViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,23 +118,25 @@ class GarbageViewController: UIViewController {
     }
 
     @IBAction func sendGarbageButtonTapped(_ sender: UIButton) {
-        handleSendGarbage()
-    }
-
-    @IBAction func retrieveGarbageButtonTapped(_ sender: UIButton) {
-        handleRetrieveGarbage()
-    }
-
-    private func handleSendGarbage() {
         // Handle sending garbage
     }
 
-    private func handleRetrieveGarbage() {
+    @IBAction func retrieveGarbageButtonTapped(_ sender: UIButton) {
         // Handle retrieving garbage
     }
 }
 
 class RecyclingViewController: UIViewController {
+    private let viewModel: RecyclingViewModel
+
+    init(viewModel: RecyclingViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -69,32 +148,26 @@ class RecyclingViewController: UIViewController {
     }
 
     @IBAction func sendRecyclingButtonTapped(_ sender: UIButton) {
-        handleSendRecycling()
-    }
-
-    @IBAction func retrieveRecyclingButtonTapped(_ sender: UIButton) {
-        handleRetrieveRecycling()
-    }
-
-    private func handleSendRecycling() {
         // Handle sending recycling
     }
 
-    private func handleRetrieveRecycling() {
+    @IBAction func retrieveRecyclingButtonTapped(_ sender: UIButton) {
         // Handle retrieving recycling
     }
 }
 
 class IntegrationsViewController: UIViewController {
-
+    private let viewModel: IntegrationsViewModel
     @IBOutlet weak var cityDropdown: UIPickerView!
-    
-    let cities = [
-        "Toronto", "Montreal", "Vancouver", "Calgary", "Edmonton",
-        "Ottawa", "Winnipeg", "Quebec City", "Hamilton", "London",
-        "Victoria", "Halifax", "St. John's", "Kitchener", "Mississauga",
-        "Saskatoon", "Regina", "Kelowna", "Moncton", "Fredericton"
-    ]
+
+    init(viewModel: IntegrationsViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -109,16 +182,20 @@ class IntegrationsViewController: UIViewController {
 }
 
 extension IntegrationsViewController: UIPickerViewDelegate, UIPickerViewDataSource {
-    
+
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
-    
+
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return cities.count
+        return viewModel.cities.count
     }
-    
+
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return cities[row]
+        return viewModel.cities[row]
+    }
+
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        viewModel.selectedCity = viewModel.cities[row]
     }
 }
