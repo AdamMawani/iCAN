@@ -1,69 +1,107 @@
 import UIKit
 
 class HomeViewController: UIViewController {
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
+    }
+
+    private func setupUI() {
         // Setup UI for home screen
     }
-    
+
     @IBAction func garbageButtonTapped(_ sender: UIButton) {
-        let garbageVC = GarbageViewController()
-        navigationController?.pushViewController(garbageVC, animated: true)
+        navigateToViewController(ofType: GarbageViewController.self)
     }
-    
+
     @IBAction func recyclingButtonTapped(_ sender: UIButton) {
-        let recyclingVC = RecyclingViewController()
-        navigationController?.pushViewController(recyclingVC, animated: true)
+        navigateToViewController(ofType: RecyclingViewController.self)
     }
-    
+
     @IBAction func integrationsButtonTapped(_ sender: UIButton) {
-        let integrationsVC = IntegrationsViewController()
-        navigationController?.pushViewController(integrationsVC, animated: true)
+        navigateToViewController(ofType: IntegrationsViewController.self)
+    }
+
+    private func navigateToViewController<T: UIViewController>(ofType type: T.Type) {
+        let viewController = T()
+        navigationController?.pushViewController(viewController, animated: true)
     }
 }
 
 class GarbageViewController: UIViewController {
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
+    }
+
+    private func setupUI() {
         // Setup UI for garbage screen
     }
-    
+
     @IBAction func sendGarbageButtonTapped(_ sender: UIButton) {
+        handleSendGarbage()
+    }
+
+    @IBAction func retrieveGarbageButtonTapped(_ sender: UIButton) {
+        handleRetrieveGarbage()
+    }
+
+    private func handleSendGarbage() {
         // Handle sending garbage
     }
-    
-    @IBAction func retrieveGarbageButtonTapped(_ sender: UIButton) {
+
+    private func handleRetrieveGarbage() {
         // Handle retrieving garbage
     }
 }
 
 class RecyclingViewController: UIViewController {
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
+    }
+
+    private func setupUI() {
         // Setup UI for recycling screen
     }
-    
+
     @IBAction func sendRecyclingButtonTapped(_ sender: UIButton) {
+        handleSendRecycling()
+    }
+
+    @IBAction func retrieveRecyclingButtonTapped(_ sender: UIButton) {
+        handleRetrieveRecycling()
+    }
+
+    private func handleSendRecycling() {
         // Handle sending recycling
     }
-    
-    @IBAction func retrieveRecyclingButtonTapped(_ sender: UIButton) {
+
+    private func handleRetrieveRecycling() {
         // Handle retrieving recycling
     }
 }
 
 class IntegrationsViewController: UIViewController {
-    
+
     @IBOutlet weak var cityDropdown: UIPickerView!
     
-    let cities = ["Toronto", "Montreal", "Vancouver", "Calgary", "Edmonton", "Ottawa", "Winnipeg", "Quebec City", "Hamilton", "London", "Victoria", "Halifax", "St. John's", "Kitchener", "Mississauga", "Saskatoon", "Regina", "Kelowna", "Moncton", "Fredericton"]
-    // Add more cities as needed
+    let cities = [
+        "Toronto", "Montreal", "Vancouver", "Calgary", "Edmonton",
+        "Ottawa", "Winnipeg", "Quebec City", "Hamilton", "London",
+        "Victoria", "Halifax", "St. John's", "Kitchener", "Mississauga",
+        "Saskatoon", "Regina", "Kelowna", "Moncton", "Fredericton"
+    ]
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
+    }
+
+    private func setupUI() {
         cityDropdown.delegate = self
         cityDropdown.dataSource = self
         // Setup UI for integrations screen
@@ -71,6 +109,7 @@ class IntegrationsViewController: UIViewController {
 }
 
 extension IntegrationsViewController: UIPickerViewDelegate, UIPickerViewDataSource {
+    
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
